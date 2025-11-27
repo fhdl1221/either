@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>투표하기</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .option-box { padding: 20px; border-radius: 15px; text-align: center; height: 100%; }
+        .box-a { background-color: #fff0f0; border: 2px solid #ff6b6b; color: #ff6b6b; }
+        .box-b { background-color: #e6fcfb; border: 2px solid #4ecdc4; color: #4ecdc4; }
+        .progress-container { height: 50px; border-radius: 25px; overflow: hidden; background-color: #e9ecef; position: relative; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/questions">🔙 목록으로 돌아가기</a>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5">
+            <span class="text-danger" th:text="${question.optionA}"></span>
+            <span class="text-muted mx-2">vs</span>
+            <span class="text-info" th:text="${question.optionB}"></span>
+        </h1>
+        <p class="lead text-muted" th:text="${question.title}"></p>
+    </div>
+
+    <div class="progress-container shadow-sm mb-4 d-flex">
+        <div th:if="${percentA > 0}"
+             th:style="'width:' + ${percentA} + '%; background-color: #ff6b6b;'"
+             class="d-flex align-items-center justify-content-center text-white fw-bold transition-width">
+            <span th:text="${question.optionA} + ' ' + ${#numbers.formatDecimal(percentA, 1, 1)} + '%'"></span>
+        </div>
+
+        <div th:if="${percentB > 0}"
+             th:style="'width:' + ${percentB} + '%; background-color: #4ecdc4;'"
+             class="d-flex align-items-center justify-content-center text-white fw-bold transition-width">
+            <span th:text="${question.optionB} + ' ' + ${#numbers.formatDecimal(percentB, 1, 1)} + '%'"></span>
+        </div>
+
+        <div th:if="${percentA == 0 and percentB == 0}" class="w-100 d-flex align-items-center justify-content-center text-muted">
+            아직 투표가 없습니다. 첫 번째 투표자가 되어주세요!
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="option-box box-a">
+                <h3>🅰️ Option A</h3>
+                <h2 class="fw-bold" th:text="${question.optionA}"></h2>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="option-box box-b">
+                <h3>🅱️ Option B</h3>
+                <h2 class="fw-bold" th:text="${question.optionB}"></h2>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-white fw-bold">🗳️ 투표하기</div>
+        <div class="card-body">
+            <form th:action="@{/questions/{id}/answer(id=${question.id})}" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">당신의 선택은?</label>
+                    <select name="answer" class="form-select" required>
+                        <option value="">-- 선택하세요 --</option>
+                        <option value="A" th:text="'A: ' + ${question.optionA}"></option>
+                        <option value="B" th:text="'B: ' + ${question.optionB}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">이유를 알려주세요 (댓글)</label>
+                    <textarea name="opinion" class="form-control" rows="3" placeholder="재미있는 의견을 남겨주세요!" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-dark w-100 py-2">투표 완료</button>
+            </form>
+        </div>
+    </div>
+
+    <h4 class="mb-3 fw-bold">💬 실시간 의견 (<span th:text="${answers.size()}"></span>)</h4>
+    <div class="list-group shadow-sm">
+        <div th:each="answer : ${answers}" class="list-group-item list-group-item-action d-flex align-items-start gap-3 py-3">
+
+            <span th:if="${answer.answerText == 'A'}" class="badge rounded-pill bg-danger" style="min-width: 60px;">A 선택</span>
+            <span th:if="${answer.answerText == 'B'}" class="badge rounded-pill bg-info text-dark" style="min-width: 60px;">B 선택</span>
+
+            <div>
+                <p class="mb-0" th:text="${answer.content}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
